@@ -1,0 +1,10 @@
+import UserInterface
+
+procedure main()
+	init()
+	userInterface()
+end
+
+procedure init()
+
+end

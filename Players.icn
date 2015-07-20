@@ -1,0 +1,10 @@
+package Players
+
+class Player(name, cash, businesses, mines)
+
+initially(newName)
+	name := newName
+	cash := 300
+	businesses := []
+	mines := []
+end

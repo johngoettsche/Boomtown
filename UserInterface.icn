@@ -1,0 +1,71 @@
+package UserInterface
+
+import Players
+
+link graphics
+link vsetup
+
+global
+	menuFile,
+	menuPlayers,
+	region,
+	listTown,
+	listPlayer
+	
+procedure userInterface()
+	uiInit()
+	ui()
+end
+
+procedure uiInit()
+	menuFile := vidgets["menuFile"]
+	menuPlayers := vidgets["menuPlayers"]
+	region := vidgets["region"]
+	listTown := vidgets["listTown"]
+	listPlayer := vidgets["listPlayer"]
+end
+
+#call backs
+procedure menuFile_cb(vidget, menu)
+	case menu[1] of {
+      "New Game": {
+      }
+      "Open Game": {
+      }
+      "Save Game": {
+      }
+      "Quit":{
+      	exit()
+      }
+   }
+end
+
+procedure menuPlayers_cb(vidget, menu)
+	case menu[1] of {
+		"Add Player": {
+			
+		}
+		"Leave Town": {
+			
+		}
+	}
+end
+
+#===<<vib:begin>>===	modify using vib; do not remove this marker line
+procedure ui_atts()
+   return ["size=1200,600", "bg=pale gray"]
+end
+
+procedure ui(win, cbk)
+return vsetup(win, cbk,
+   [":Sizer:::0,0,1200,600:",],
+   ["listPlayer:List:r::850,310,350,290:",listPlayer_cb],
+   ["listTown:List:r::850,20,350,290:",listTown_cb],
+   ["menuFile:Menu:pull::0,0,36,19:File",menuFile_cb,
+      ["New Game","Open Game","Save Game","Quit"]],
+   ["menuPlayers:Menu:pull::35,0,57,19:Players",menuPlayers_cb,
+      ["Add Player","Leave Town"]],
+   ["region:Rect:invisible::0,20,850,580:",region_cb],
+   )
+end
+#===<<vib:end>>===	end of section maintained by vib
