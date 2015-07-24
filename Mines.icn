@@ -1,0 +1,12 @@
+class Mine(mineName, mineType, ownership, employees, tile)
+	method production()
+		
+	end
+
+initially(playerName, newName, tp, ti)
+	mineName := newName
+	mineType := tp
+	ownership := Ownership(playerName, 100)
+	employees := []
+	tile := ti
+end

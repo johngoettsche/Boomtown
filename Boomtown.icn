@@ -1,0 +1,502 @@
+import gui
+$include "guih.icn"
+
+class Boomtown : Dialog(menuFile, menuPlayers, menu_bar_1, menu_separator_1, text_menu_item_exit, text_menu_item_new_game, text_menu_item_save_game, text_menu_item_leave_town, text_menu_item_new_player, menu_turn, text_list_player, text_list_town, text_menu_item_next, menu_10, menu_8, menu_9, menu_separator_2, menu_separator_3, text_menu_item_claim, text_menu_item_closeBusiness, text_menu_item_hardRock, text_menu_item_higherBusEmp, text_menu_item_layoffBusEmp, text_menu_item_placer, text_menu_item_sellInterest, text_menu_item_startBusiness, text_button_1, menu_separator_4, menu_separator_5, text_menu_item_assay, text_menu_item_close_mine, text_menu_item_higher_crew, text_menu_item_layoff_crew, text_menu_item_sellMineInterest, text_menu_item_startMine)
+
+	#Town information
+	method makeTownReport()
+		local report
+		report := []
+		put(report, town.name)
+		put(report, "Population: " || town.population())
+		
+		put(report, "Mines: ")
+		every mine := !mines do {
+			put(report, "   " || mine.mineName || "(" || mine.mineType || ")")
+			every o := !mine.ownership.owners do put(report, "    - " || o.owner || "(" || o.shares || "%)")
+		}
+		return report
+	end
+	
+	method updateTownInfo()
+		local report
+		report := makeTownReport()
+		text_list_town.set_contents(report)
+	end
+	
+	#player information
+	method makePlayerReport(player)
+		local report
+		report := []
+		put(report, player.name)
+		put(report, "$ " || player.cash)
+		return report
+	end
+		
+	method updatePlayerInfo()  
+		local report
+		report := makePlayerReport(players[turn])
+		text_list_player.set_contents(report)
+	end
+	
+	#GUI methods
+   method component_setup()
+      self.setup()
+   end
+
+   method end_dialog()
+   end
+
+   method init_dialog()
+   end
+
+   method on_exit(ev)
+		exit()
+   end
+
+   method on_new_game(ev)
+   end
+
+   method on_save_game(ev)
+   end
+ 
+   method on_leave_town(ev)
+		players[turn].leaveGame := round
+		put(finalScores, players[turn])
+		delete(players, turn)
+		if *players > 0 then {
+			updateTownInfo()
+			on_text_menu_item_next()
+		}
+		else {
+			#give final game report
+			exit()
+		}
+   end
+
+   method on_new_player(ev)
+		NewPlayerDialog().show_modal()
+		updateTownInfo()
+   end
+
+   method on_text_menu_item_next(ev)
+		turn +:= 1
+		if turn > *players then {
+			turn := 1
+			round +:= 1
+		}
+		updatePlayerInfo()
+   end
+
+   method on_text_menu_item_claim(ev)
+		local tile
+		if players[turn].cash >= 5 then {
+			tile := getTile(current[1], current[2])
+			if tile.owner == "GLO" then {
+				players[turn].cash -:= 5
+				tile.owner := players[turn].name
+			}
+		}
+		updatePlayerInfo()
+   end
+
+   method on_text_menu_item_closeBusiness(ev)
+   end
+
+   method on_text_menu_item_higherBusEmp(ev)
+   end
+
+   method on_text_menu_item_layoffBusEmp(ev)
+   end
+
+   method on_text_menu_item_sellInterest(ev)
+   end
+
+   method on_text_menu_item_startBusiness(ev)
+   end
+
+   method on_text_menu_item_assay(ev)
+		local tile
+		tile := DisplayTile()
+		tile.show_modal()
+   end
+
+   method on_text_menu_item_close_mine(ev)
+   end
+
+   method on_text_menu_item_higher_crew(ev)
+   end
+
+   method on_text_menu_item_layoff_crew(ev)
+   end
+
+   method on_text_menu_item_sellMineInterest(ev)
+   end
+
+   method on_text_menu_item_startMine(ev)
+		local mineDialog
+		mineDialog := createMineDialog()
+		mineDialog.show_modal()
+		updateTownInfo()
+   end
+
+   method setup()
+      self.set_attribs("size=1200,600")
+      menu_bar_1 := MenuBar()
+      menu_bar_1.set_pos("0", "0")
+      menuFile := Menu()
+      menuFile.set_label("File")
+      text_menu_item_new_game := TextMenuItem()
+      text_menu_item_new_game.set_label("New Game")
+      text_menu_item_new_game.connect(self, "on_new_game", ACTION_EVENT)
+      menuFile.add(text_menu_item_new_game)
+      text_menu_item_save_game := TextMenuItem()
+      text_menu_item_save_game.set_label("Save Game")
+      text_menu_item_save_game.connect(self, "on_save_game", ACTION_EVENT)
+      menuFile.add(text_menu_item_save_game)
+      menu_separator_1 := MenuSeparator()
+      menu_separator_1.set_is_shaded()
+      menuFile.add(menu_separator_1)
+      text_menu_item_exit := TextMenuItem()
+      text_menu_item_exit.set_label("Exit")
+      text_menu_item_exit.connect(self, "on_exit", ACTION_EVENT)
+      menuFile.add(text_menu_item_exit)
+      menu_bar_1.add(menuFile)
+      menuPlayers := Menu()
+      menuPlayers.set_label("Players")
+      text_menu_item_new_player := TextMenuItem()
+      text_menu_item_new_player.set_label("New Player")
+      text_menu_item_new_player.connect(self, "on_new_player", ACTION_EVENT)
+      menuPlayers.add(text_menu_item_new_player)
+      text_menu_item_leave_town := TextMenuItem()
+      text_menu_item_leave_town.set_label("Leave Town")
+      text_menu_item_leave_town.connect(self, "on_leave_town", ACTION_EVENT)
+      menuPlayers.add(text_menu_item_leave_town)
+      menu_bar_1.add(menuPlayers)
+      menu_8 := Menu()
+      menu_8.set_label("Prospecting")
+      text_menu_item_assay := TextMenuItem()
+      text_menu_item_assay.set_label("Assay")
+      text_menu_item_assay.connect(self, "on_text_menu_item_assay", ACTION_EVENT)
+      menu_8.add(text_menu_item_assay)
+      text_menu_item_claim := TextMenuItem()
+      text_menu_item_claim.set_label("Claim")
+      text_menu_item_claim.connect(self, "on_text_menu_item_claim", ACTION_EVENT)
+      menu_8.add(text_menu_item_claim)
+      menu_9 := Menu()
+      menu_9.set_label("Mine")
+      text_menu_item_startMine := TextMenuItem()
+      text_menu_item_startMine.set_label("Start")
+      text_menu_item_startMine.connect(self, "on_text_menu_item_startMine", ACTION_EVENT)
+      menu_9.add(text_menu_item_startMine)
+      text_menu_item_sellMineInterest := TextMenuItem()
+      text_menu_item_sellMineInterest.set_label("Sell Interest")
+      text_menu_item_sellMineInterest.connect(self, "on_text_menu_item_sellMineInterest", ACTION_EVENT)
+      menu_9.add(text_menu_item_sellMineInterest)
+      menu_separator_4 := MenuSeparator()
+      menu_separator_4.set_is_shaded()
+      menu_9.add(menu_separator_4)
+      text_menu_item_higher_crew := TextMenuItem()
+      text_menu_item_higher_crew.set_label("Higher Crew")
+      text_menu_item_higher_crew.connect(self, "on_text_menu_item_higher_crew", ACTION_EVENT)
+      menu_9.add(text_menu_item_higher_crew)
+      text_menu_item_layoff_crew := TextMenuItem()
+      text_menu_item_layoff_crew.set_label("Layoff Crew")
+      text_menu_item_layoff_crew.connect(self, "on_text_menu_item_layoff_crew", ACTION_EVENT)
+      menu_9.add(text_menu_item_layoff_crew)
+      menu_separator_5 := MenuSeparator()
+      menu_separator_5.set_is_shaded()
+      menu_9.add(menu_separator_5)
+      text_menu_item_close_mine := TextMenuItem()
+      text_menu_item_close_mine.set_label("Close")
+      text_menu_item_close_mine.connect(self, "on_text_menu_item_close_mine", ACTION_EVENT)
+      menu_9.add(text_menu_item_close_mine)
+      menu_8.add(menu_9)
+      menu_bar_1.add(menu_8)
+      menu_10 := Menu()
+      menu_10.set_label("Businesses")
+      text_menu_item_startBusiness := TextMenuItem()
+      text_menu_item_startBusiness.set_label("Start")
+      text_menu_item_startBusiness.connect(self, "on_text_menu_item_startBusiness", ACTION_EVENT)
+      menu_10.add(text_menu_item_startBusiness)
+      text_menu_item_sellInterest := TextMenuItem()
+      text_menu_item_sellInterest.set_label("Sell Interest")
+      text_menu_item_sellInterest.connect(self, "on_text_menu_item_sellInterest", ACTION_EVENT)
+      menu_10.add(text_menu_item_sellInterest)
+      menu_separator_2 := MenuSeparator()
+      menu_separator_2.set_is_shaded()
+      menu_10.add(menu_separator_2)
+      text_menu_item_higherBusEmp := TextMenuItem()
+      text_menu_item_higherBusEmp.set_label("Higher Employees")
+      text_menu_item_higherBusEmp.connect(self, "on_text_menu_item_higherBusEmp", ACTION_EVENT)
+      menu_10.add(text_menu_item_higherBusEmp)
+      text_menu_item_layoffBusEmp := TextMenuItem()
+      text_menu_item_layoffBusEmp.set_label("Layoff Employees")
+      text_menu_item_layoffBusEmp.connect(self, "on_text_menu_item_layoffBusEmp", ACTION_EVENT)
+      menu_10.add(text_menu_item_layoffBusEmp)
+      menu_separator_3 := MenuSeparator()
+      menu_separator_3.set_is_shaded()
+      menu_10.add(menu_separator_3)
+      text_menu_item_closeBusiness := TextMenuItem()
+      text_menu_item_closeBusiness.set_label("Close Business")
+      text_menu_item_closeBusiness.connect(self, "on_text_menu_item_closeBusiness", ACTION_EVENT)
+      menu_10.add(text_menu_item_closeBusiness)
+      menu_bar_1.add(menu_10)
+      menu_turn := Menu()
+      menu_turn.set_label("Turns")
+      text_menu_item_next := TextMenuItem()
+      text_menu_item_next.set_label("Next ->")
+      text_menu_item_next.connect(self, "on_text_menu_item_next", ACTION_EVENT)
+      menu_turn.add(text_menu_item_next)
+      menu_bar_1.add(menu_turn)
+      self.add(menu_bar_1)
+      text_list_player := TextList()
+      text_list_player.set_pos("850", "310")
+      text_list_player.set_size("350", "290")
+      text_list_player.set_draw_border()
+      text_list_player.set_contents([""])
+      self.add(text_list_player)
+      text_list_town := TextList()
+      text_list_town.set_pos("850", "25")
+      text_list_town.set_size("350", "285")
+      text_list_town.set_draw_border()
+      text_list_town.set_contents([""])
+      self.add(text_list_town)
+   end
+
+   initially
+      self.Dialog.initially()
+end
+
+global 
+	town,
+	areaMap,
+	players,
+	finalScores,
+	round,
+	turn,
+	mines,
+	current,
+	MAPSIZE
+	
+procedure init()
+	MAPSIZE := 22
+	round := 1
+	turn := 0
+	areaMap := []
+	current := [1, 1]
+	town := Town()
+	players := []
+	finalScores := []
+	mines := []
+end
+
+procedure main()	
+   local 
+		welcome,
+		disp
+		
+	welcome := Welcome()
+	welcome.show_modal()
+	init()
+	makeMap()
+   disp := Boomtown()
+   disp.show_modal()
+end
+
+### Ivib-v2 layout ##
+#class|Canvas|17|Name Table|table|integer|0|6|string|menu|integer|11|st
+#ring|menu_bar|integer|1|string|menu_separator|integer|5|string|text_bu
+#tton|integer|1|string|text_list|integer|2|string|text_menu_item|intege
+#r|24|SuperClass Name|string|Dialog|Import Name|string|gui|Button Group
+#s|class|ButtonGroupSet|2|Parent Canvas|1|Boxes|list|0|Checkbox Groups|
+#class|CheckBoxGroupSet|2|Parent Canvas|1|Boxes|list|0|Gen Indent|integ
+#er|3|Gen Main|integer|1|Gen Component Setup|integer|1|Gen Init Dialog|
+#integer|1|Gen Initially|integer|1|Dialog Struct|class|CDialog|4|Min Wi
+#dth|null|Min Height|null|Ticker Rate|null|Attribs|list|0|Name|string|B
+#oomtown|Width|integer|1200|Height|integer|600|Items|list|3|class|Canva
+#sMenuBar|26|Parent Canvas|1|Name|string|menu_bar_1|Class Name|string|M
+#enuBar|Import Name|string|gui|X Fix|null|Y Fix|null|W Fix|null|H Fix|n
+#ull|W Default|integer|1|H Default|integer|1|X Spec|string|0|Y Spec|str
+#ing|0|W Spec|string|100%|H Spec|integer|24|X Align|string|l|Y Align|st
+#ring|t|Is shaded|null|Is Button Subclass|null|Draw Border|null|Attribs
+#|list|0|Tooltip|null|Accel|null|Event Handlers|list|0|Class Variable|i
+#nteger|1|Parent Component|1|Menus|list|5|class|CanvasMenu|17|Name|stri
+#ng|menuFile|Class Name|string|Menu|Import Name|string|gui|Accel|null|L
+#abel|string|File|Label Left|null|Label Right|null|Is shaded|null|Img L
+#eft|null|Img Left Width|null|Img Left Height|null|Img Right|string|9,c
+#1,0~~~~~~~~000~~~~~~00000~~~~0000000~~0000000000000000~~00000~~~~000~~
+#~~~~0~~~~~~~~|Img Right Width|integer|9|Img Right Height|integer|9|Eve
+#nt Method|null|Class Variable|integer|1|Children|list|4|class|CanvasTe
+#xtMenuItem|16|Name|string|text_menu_item_new_game|Class Name|string|Te
+#xtMenuItem|Import Name|string|gui|Accel|null|Label|string|New Game|Lab
+#el Left|null|Label Right|null|Is shaded|null|Img Left|null|Img Left Wi
+#dth|null|Img Left Height|null|Img Right|null|Img Right Width|null|Img 
+#Right Height|null|Event Method|string|on_new_game|Class Variable|integ
+#er|1|class|CanvasTextMenuItem|16|Name|string|text_menu_item_save_game|
+#Class Name|string|TextMenuItem|Import Name|string|gui|Accel|null|Label
+#|string|Save Game|Label Left|null|Label Right|null|Is shaded|null|Img 
+#Left|null|Img Left Width|null|Img Left Height|null|Img Right|null|Img 
+#Right Width|null|Img Right Height|null|Event Method|string|on_save_gam
+#e|Class Variable|integer|1|class|CanvasMenuSeparator|16|Name|string|me
+#nu_separator_1|Class Name|string|MenuSeparator|Import Name|string|gui|
+#Accel|null|Label|null|Label Left|null|Label Right|null|Is shaded|integ
+#er|1|Img Left|null|Img Left Width|null|Img Left Height|null|Img Right|
+#null|Img Right Width|null|Img Right Height|null|Event Method|null|Clas
+#s Variable|integer|1|class|CanvasTextMenuItem|16|Name|string|text_menu
+#_item_exit|Class Name|string|TextMenuItem|Import Name|string|gui|Accel
+#|null|Label|string|Exit|Label Left|null|Label Right|null|Is shaded|nul
+#l|Img Left|null|Img Left Width|null|Img Left Height|null|Img Right|nul
+#l|Img Right Width|null|Img Right Height|null|Event Method|string|on_ex
+#it|Class Variable|integer|1|class|CanvasMenu|17|Name|string|menuPlayer
+#s|Class Name|string|Menu|Import Name|string|gui|Accel|null|Label|strin
+#g|Players|Label Left|null|Label Right|null|Is shaded|null|Img Left|nul
+#l|Img Left Width|null|Img Left Height|null|Img Right|string|9,c1,0~~~~
+#~~~~000~~~~~~00000~~~~0000000~~0000000000000000~~00000~~~~000~~~~~~0~~
+#~~~~~~|Img Right Width|integer|9|Img Right Height|integer|9|Event Meth
+#od|null|Class Variable|integer|1|Children|list|2|class|CanvasTextMenuI
+#tem|16|Name|string|text_menu_item_new_player|Class Name|string|TextMen
+#uItem|Import Name|string|gui|Accel|null|Label|string|New Player|Label 
+#Left|null|Label Right|null|Is shaded|null|Img Left|null|Img Left Width
+#|null|Img Left Height|null|Img Right|null|Img Right Width|null|Img Rig
+#ht Height|null|Event Method|string|on_new_player|Class Variable|intege
+#r|1|class|CanvasTextMenuItem|16|Name|string|text_menu_item_leave_town|
+#Class Name|string|TextMenuItem|Import Name|string|gui|Accel|null|Label
+#|string|Leave Town|Label Left|null|Label Right|null|Is shaded|null|Img
+# Left|null|Img Left Width|null|Img Left Height|null|Img Right|null|Img
+# Right Width|null|Img Right Height|null|Event Method|string|on_leave_t
+#own|Class Variable|integer|1|class|CanvasMenu|17|Name|string|menu_8|Cl
+#ass Name|string|Menu|Import Name|string|gui|Accel|null|Label|string|Pr
+#ospecting|Label Left|null|Label Right|null|Is shaded|null|Img Left|nul
+#l|Img Left Width|null|Img Left Height|null|Img Right|string|9,c1,0~~~~
+#~~~~000~~~~~~00000~~~~0000000~~0000000000000000~~00000~~~~000~~~~~~0~~
+#~~~~~~|Img Right Width|integer|9|Img Right Height|integer|9|Event Meth
+#od|null|Class Variable|integer|1|Children|list|3|class|CanvasTextMenuI
+#tem|16|Name|string|text_menu_item_assay|Class Name|string|TextMenuItem
+#|Import Name|string|gui|Accel|null|Label|string|Assay|Label Left|null|
+#Label Right|null|Is shaded|null|Img Left|null|Img Left Width|null|Img 
+#Left Height|null|Img Right|null|Img Right Width|null|Img Right Height|
+#null|Event Method|string|on_text_menu_item_assay|Class Variable|intege
+#r|1|class|CanvasTextMenuItem|16|Name|string|text_menu_item_claim|Class
+# Name|string|TextMenuItem|Import Name|string|gui|Accel|null|Label|stri
+#ng|Claim|Label Left|null|Label Right|null|Is shaded|null|Img Left|null
+#|Img Left Width|null|Img Left Height|null|Img Right|null|Img Right Wid
+#th|null|Img Right Height|null|Event Method|string|on_text_menu_item_cl
+#aim|Class Variable|integer|1|class|CanvasMenu|17|Name|string|menu_9|Cl
+#ass Name|string|Menu|Import Name|string|gui|Accel|null|Label|string|Mi
+#ne|Label Left|null|Label Right|null|Is shaded|null|Img Left|null|Img L
+#eft Width|null|Img Left Height|null|Img Right|string|9,c1,0~~~~~~~~000
+#~~~~~~00000~~~~0000000~~0000000000000000~~00000~~~~000~~~~~~0~~~~~~~~|
+#Img Right Width|integer|9|Img Right Height|integer|9|Event Method|null
+#|Class Variable|integer|1|Children|list|7|class|CanvasTextMenuItem|16|
+#Name|string|text_menu_item_startMine|Class Name|string|TextMenuItem|Im
+#port Name|string|gui|Accel|null|Label|string|Start|Label Left|null|Lab
+#el Right|null|Is shaded|null|Img Left|null|Img Left Width|null|Img Lef
+#t Height|null|Img Right|null|Img Right Width|null|Img Right Height|nul
+#l|Event Method|string|on_text_menu_item_startMine|Class Variable|integ
+#er|1|class|CanvasTextMenuItem|16|Name|string|text_menu_item_sellMineIn
+#terest|Class Name|string|TextMenuItem|Import Name|string|gui|Accel|nul
+#l|Label|string|Sell Interest|Label Left|null|Label Right|null|Is shade
+#d|null|Img Left|null|Img Left Width|null|Img Left Height|null|Img Righ
+#t|null|Img Right Width|null|Img Right Height|null|Event Method|string|
+#on_text_menu_item_sellMineInterest|Class Variable|integer|1|class|Canv
+#asMenuSeparator|16|Name|string|menu_separator_4|Class Name|string|Menu
+#Separator|Import Name|string|gui|Accel|null|Label|null|Label Left|null
+#|Label Right|null|Is shaded|integer|1|Img Left|null|Img Left Width|nul
+#l|Img Left Height|null|Img Right|null|Img Right Width|null|Img Right H
+#eight|null|Event Method|null|Class Variable|integer|1|class|CanvasText
+#MenuItem|16|Name|string|text_menu_item_higher_crew|Class Name|string|T
+#extMenuItem|Import Name|string|gui|Accel|null|Label|string|Higher Crew
+#|Label Left|null|Label Right|null|Is shaded|null|Img Left|null|Img Lef
+#t Width|null|Img Left Height|null|Img Right|null|Img Right Width|null|
+#Img Right Height|null|Event Method|string|on_text_menu_item_higher_cre
+#w|Class Variable|integer|1|class|CanvasTextMenuItem|16|Name|string|tex
+#t_menu_item_layoff_crew|Class Name|string|TextMenuItem|Import Name|str
+#ing|gui|Accel|null|Label|string|Layoff Crew|Label Left|null|Label Righ
+#t|null|Is shaded|null|Img Left|null|Img Left Width|null|Img Left Heigh
+#t|null|Img Right|null|Img Right Width|null|Img Right Height|null|Event
+# Method|string|on_text_menu_item_layoff_crew|Class Variable|integer|1|
+#class|CanvasMenuSeparator|16|Name|string|menu_separator_5|Class Name|s
+#tring|MenuSeparator|Import Name|string|gui|Accel|null|Label|null|Label
+# Left|null|Label Right|null|Is shaded|integer|1|Img Left|null|Img Left
+# Width|null|Img Left Height|null|Img Right|null|Img Right Width|null|I
+#mg Right Height|null|Event Method|null|Class Variable|integer|1|class|
+#CanvasTextMenuItem|16|Name|string|text_menu_item_close_mine|Class Name
+#|string|TextMenuItem|Import Name|string|gui|Accel|null|Label|string|Cl
+#ose|Label Left|null|Label Right|null|Is shaded|null|Img Left|null|Img 
+#Left Width|null|Img Left Height|null|Img Right|null|Img Right Width|nu
+#ll|Img Right Height|null|Event Method|string|on_text_menu_item_close_m
+#ine|Class Variable|integer|1|class|CanvasMenu|17|Name|string|menu_10|C
+#lass Name|string|Menu|Import Name|string|gui|Accel|null|Label|string|B
+#usinesses|Label Left|null|Label Right|null|Is shaded|null|Img Left|nul
+#l|Img Left Width|null|Img Left Height|null|Img Right|string|9,c1,0~~~~
+#~~~~000~~~~~~00000~~~~0000000~~0000000000000000~~00000~~~~000~~~~~~0~~
+#~~~~~~|Img Right Width|integer|9|Img Right Height|integer|9|Event Meth
+#od|null|Class Variable|integer|1|Children|list|7|class|CanvasTextMenuI
+#tem|16|Name|string|text_menu_item_startBusiness|Class Name|string|Text
+#MenuItem|Import Name|string|gui|Accel|null|Label|string|Start|Label Le
+#ft|null|Label Right|null|Is shaded|null|Img Left|null|Img Left Width|n
+#ull|Img Left Height|null|Img Right|null|Img Right Width|null|Img Right
+# Height|null|Event Method|string|on_text_menu_item_startBusiness|Class
+# Variable|integer|1|class|CanvasTextMenuItem|16|Name|string|text_menu_
+#item_sellInterest|Class Name|string|TextMenuItem|Import Name|string|gu
+#i|Accel|null|Label|string|Sell Interest|Label Left|null|Label Right|nu
+#ll|Is shaded|null|Img Left|null|Img Left Width|null|Img Left Height|nu
+#ll|Img Right|null|Img Right Width|null|Img Right Height|null|Event Met
+#hod|string|on_text_menu_item_sellInterest|Class Variable|integer|1|cla
+#ss|CanvasMenuSeparator|16|Name|string|menu_separator_2|Class Name|stri
+#ng|MenuSeparator|Import Name|string|gui|Accel|null|Label|null|Label Le
+#ft|null|Label Right|null|Is shaded|integer|1|Img Left|null|Img Left Wi
+#dth|null|Img Left Height|null|Img Right|null|Img Right Width|null|Img 
+#Right Height|null|Event Method|null|Class Variable|integer|1|class|Can
+#vasTextMenuItem|16|Name|string|text_menu_item_higherBusEmp|Class Name|
+#string|TextMenuItem|Import Name|string|gui|Accel|null|Label|string|Hig
+#her Employees|Label Left|null|Label Right|null|Is shaded|null|Img Left
+#|null|Img Left Width|null|Img Left Height|null|Img Right|null|Img Righ
+#t Width|null|Img Right Height|null|Event Method|string|on_text_menu_it
+#em_higherBusEmp|Class Variable|integer|1|class|CanvasTextMenuItem|16|N
+#ame|string|text_menu_item_layoffBusEmp|Class Name|string|TextMenuItem|
+#Import Name|string|gui|Accel|null|Label|string|Layoff Employees|Label 
+#Left|null|Label Right|null|Is shaded|null|Img Left|null|Img Left Width
+#|null|Img Left Height|null|Img Right|null|Img Right Width|null|Img Rig
+#ht Height|null|Event Method|string|on_text_menu_item_layoffBusEmp|Clas
+#s Variable|integer|1|class|CanvasMenuSeparator|16|Name|string|menu_sep
+#arator_3|Class Name|string|MenuSeparator|Import Name|string|gui|Accel|
+#null|Label|null|Label Left|null|Label Right|null|Is shaded|integer|1|I
+#mg Left|null|Img Left Width|null|Img Left Height|null|Img Right|null|I
+#mg Right Width|null|Img Right Height|null|Event Method|null|Class Vari
+#able|integer|1|class|CanvasTextMenuItem|16|Name|string|text_menu_item_
+#closeBusiness|Class Name|string|TextMenuItem|Import Name|string|gui|Ac
+#cel|null|Label|string|Close Business|Label Left|null|Label Right|null|
+#Is shaded|null|Img Left|null|Img Left Width|null|Img Left Height|null|
+#Img Right|null|Img Right Width|null|Img Right Height|null|Event Method
+#|string|on_text_menu_item_closeBusiness|Class Variable|integer|1|class
+#|CanvasMenu|17|Name|string|menu_turn|Class Name|string|Menu|Import Nam
+#e|string|gui|Accel|null|Label|string|Turns|Label Left|null|Label Right
+#|null|Is shaded|null|Img Left|null|Img Left Width|null|Img Left Height
+#|null|Img Right|string|9,c1,0~~~~~~~~000~~~~~~00000~~~~0000000~~000000
+#0000000000~~00000~~~~000~~~~~~0~~~~~~~~|Img Right Width|integer|9|Img 
+#Right Height|integer|9|Event Method|null|Class Variable|integer|1|Chil
+#dren|list|1|class|CanvasTextMenuItem|16|Name|string|text_menu_item_nex
+#t|Class Name|string|TextMenuItem|Import Name|string|gui|Accel|null|Lab
+#el|string|Next ->|Label Left|null|Label Right|null|Is shaded|null|Img 
+#Left|null|Img Left Width|null|Img Left Height|null|Img Right|null|Img 
+#Right Width|null|Img Right Height|null|Event Method|string|on_text_men
+#u_item_next|Class Variable|integer|1|class|CanvasTextList|29|Parent Ca
+#nvas|1|Name|string|text_list_player|Class Name|string|TextList|Import 
+#Name|string|gui|X Fix|integer|1|Y Fix|integer|1|W Fix|integer|1|H Fix|
+#integer|1|W Default|null|H Default|null|X Spec|string|850|Y Spec|strin
+#g|310|W Spec|string|350|H Spec|string|290|X Align|string|l|Y Align|str
+#ing|t|Is shaded|null|Is Button Subclass|null|Draw Border|integer|1|Att
+#ribs|list|0|Tooltip|null|Accel|null|Event Handlers|list|0|Class Variab
+#le|integer|1|Parent Component|1|Select One|null|Select Many|null|Check
+#ed|list|1|null|Contents|list|1|string||class|CanvasTextList|29|Parent 
+#Canvas|1|Name|string|text_list_town|Class Name|string|TextList|Import 
+#Name|string|gui|X Fix|integer|1|Y Fix|integer|1|W Fix|integer|1|H Fix|
+#integer|1|W Default|null|H Default|null|X Spec|string|850|Y Spec|strin
+#g|25|W Spec|string|350|H Spec|string|285|X Align|string|l|Y Align|stri
+#ng|t|Is shaded|null|Is Button Subclass|null|Draw Border|integer|1|Attr
+#ibs|list|0|Tooltip|null|Accel|null|Event Handlers|list|0|Class Variabl
+#e|integer|1|Parent Component|1|Select One|null|Select Many|null|Checke
+#d|list|1|null|Contents|list|1|string||Initial Focus|null|Event Handler
+#s|list|0|

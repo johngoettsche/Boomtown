@@ -1,10 +1,27 @@
-package Players
+procedure newPlayer()
+	
+	repeat {
+				case OpenDialog("Name of player") of {
+					"Okay" : {
+						if \dialog_value then {
+							newPlayer := Player(dialog_value)
+							put(players, newPlayer)
+							return
+						}
+						else Notice("Who is playing?")
+					}
+					"Cancel" : fail
+				}
+			}
+end
 
-class Player(name, cash, businesses, mines)
+class Player(name, cash, businesses, mines, enterGame, leaveGame)
 
 initially(newName)
 	name := newName
 	cash := 300
+	enterGame := round
+	leaveGame := -1
 	businesses := []
 	mines := []
 end

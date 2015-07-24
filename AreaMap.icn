@@ -1,0 +1,38 @@
+procedure getTile(r, c)
+	row := areaMap[r]
+	return row[c]
+end
+
+procedure makeMap()
+	local 
+		row,
+		column,
+		newTile,
+		newRow
+		
+	newRow := []
+	row := 1
+	while row <= MAPSIZE do {
+		column := 1
+		while column <= MAPSIZE do {
+			newTile := Tile(row, column)
+			put(newRow, newTile)
+			column +:= 1
+		}
+		put(areaMap, newRow)
+		row +:= 1
+	}
+end
+
+class Tile(row, column, tileType, trees, pGold, uGold, owner, structure, statusImage)
+
+initially(r, c)
+	row := r
+	column := c
+	tileType := "forest"
+	trees := 20 + ?20
+	pGold := ?20
+	uGold := ?50
+	owner := "GLO"
+	structure := "none"
+end

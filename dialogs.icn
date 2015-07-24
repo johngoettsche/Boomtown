@@ -1,0 +1,157 @@
+import gui
+$include "guih.icn"
+
+class NewPlayerDialog : Dialog()
+	local 
+		playerName,
+		namebox
+	
+	method handle_text_field()
+		playerName := namebox.get_contents()
+	end
+	
+	method addPlayer()
+		newPlayer := Player(playerName)
+		put(players, newPlayer)
+		self.dispose()
+	end
+	
+	method component_setup()
+		local 
+			l, cancel, ok
+			
+		l := Label("label=Player Name:", "pos=10%, 20%", "align=c,c")
+		add(l)
+		namebox := TextField("pos=10%, 40%", "size=320", "draw_border=t")
+		namebox.connect(self, "handle_text_field", TEXTFIELD_CHANGED_EVENT)
+		add(namebox)
+		cancel := TextButton("label=Cancel", "pos=33%, 75%", "align=c,c")
+		cancel.connect(self, "dispose", ACTION_EVENT)
+		add(cancel)
+		ok := TextButton("label=Ok", "pos=67%, 75%", "align=c,c")
+		ok.connect(self, "addPlayer", ACTION_EVENT)
+		add(ok)
+		attrib("size=400,150", "bg=light gray", "font=serif", "resize=on")
+	end
+end
+
+class Welcome : Dialog()
+	method okButton(ev)
+		self.dispose()
+	end
+	
+	method component_setup()
+		local 
+			textList,
+			txt,
+			im
+		
+		txt := []
+		put(txt, "Boomtown:")
+		put(txt, " ")
+		put(txt, "    (c) 2015, John H. Goettsche")
+		
+		self.set_attribs("size=420,240", )
+		textList := TextList()
+		textList.set_pos("10", "10")
+		textList.set_size("400", "80")
+		textList.set_contents(txt)
+		add(textList)
+		
+      im := Image()
+      im.set_pos("120", "90")
+      im.set_size("220", "110")
+      im.set_filename("builtwith.png")
+      im.set_internal_alignment("l", "c")
+      self.add(im)
+		
+		ok := TextButton("label=Ok", "pos=50%, 210", "align=c,c")
+		ok.connect(self, "okButton", ACTION_EVENT)
+		add(ok)
+	end
+end
+
+class DisplayTile : Dialog()
+	method okButton(ev)
+		self.dispose()
+	end
+	
+	method component_setup()
+		local 
+			textList,
+			txt,
+			ok,
+			tile
+		
+		tile := getTile(current[1], current[2])
+		txt := []
+		put(txt, "Land type: " || tile.tileType)
+		put(txt, "Trees: " || tile.trees)
+		put(txt, "Gold (Placer): " || tile.pGold)
+		put(txt, "Structure: " || tile.structure)
+		put(txt, "Owner: " || tile.owner)
+		
+		self.set_attribs("size=320,350", )
+		textList := TextList()
+		textList.set_pos("10", "10")
+		textList.set_size("300", "300")
+		textList.set_contents(txt)
+		add(textList)
+		
+		ok := TextButton("label=Ok", "pos=50%, 320", "align=c,c")
+		ok.connect(self, "okButton", ACTION_EVENT)
+		add(ok)
+	end
+end
+
+class createMineDialog : Dialog()
+	local 
+		namebox,
+		mineName,
+		mineType
+		
+	method handle_text_field()
+		mineName := namebox.get_contents()
+	end
+
+	method cancelButton(ev)
+		self.dispose()
+	end
+
+	method okButton(ev)
+		local newMine
+		tile := getTile(current[1], current[2])
+		newMine := Mine(players[turn].name, mineName, mineType, tile)
+		put(mines, newMine)
+		tile.structure := mineType
+		self.dispose()
+	end
+	
+	method component_setup()
+		local 
+			textList,
+			txt,
+			ok,
+			tile
+		
+		l := Label("label=Mine Name:", "pos=10%, 20%", "align=c,c")
+		add(l)
+		namebox := TextField("pos=10%, 40%", "size=320", "draw_border=t")
+		namebox.connect(self, "handle_text_field", TEXTFIELD_CHANGED_EVENT)
+		add(namebox)
+		
+		txt := []
+		put(txt, "Placer Mine")
+		put(txt, "Hard Rock Mine")
+		mineType := "Placer Mine"
+		
+		cancel := TextButton("label=Cancel", "pos=33%, 75%", "align=c,c")
+		cancel.connect(self, "cancelButton", ACTION_EVENT)
+		add(cancel)
+		
+		ok := TextButton("label=Ok", "pos=67%, 75%", "align=c,c")
+		ok.connect(self, "okButton", ACTION_EVENT)
+		add(ok)
+		attrib("size=400,150", "bg=light gray", "font=serif", "resize=on")
+	end
+end

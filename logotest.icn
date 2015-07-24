@@ -1,0 +1,52 @@
+import gui
+$include "guih.icn"
+
+class Untitled : Dialog(image_1)
+   method component_setup()
+      self.setup()
+   end
+
+   method end_dialog()
+   end
+
+   method init_dialog()
+   end
+
+   method setup()
+      self.set_attribs("size=644,399")
+      image_1 := Image()
+      image_1.set_pos("10", "10")
+      image_1.set_size("100", "50")
+      image_1.set_filename("unilogo.jpg")
+      image_1.set_internal_alignment("c", "c")
+      self.add(image_1)
+   end
+
+   initially
+      self.Dialog.initially()
+end
+
+procedure main()
+   local d
+   d := Untitled()
+   d.show_modal()
+end
+
+### Ivib-v2 layout ##
+#class|Canvas|17|Name Table|table|integer|0|1|string|image|integer|1|Su
+#perClass Name|string|Dialog|Import Name|string|gui|Button Groups|class
+#|ButtonGroupSet|2|Parent Canvas|1|Boxes|list|0|Checkbox Groups|class|C
+#heckBoxGroupSet|2|Parent Canvas|1|Boxes|list|0|Gen Indent|integer|3|Ge
+#n Main|integer|1|Gen Component Setup|integer|1|Gen Init Dialog|integer
+#|1|Gen Initially|integer|1|Dialog Struct|class|CDialog|4|Min Width|nul
+#l|Min Height|null|Ticker Rate|null|Attribs|list|0|Name|string|Untitled
+#|Width|integer|644|Height|integer|399|Items|list|1|class|CanvasImage|2
+#9|Parent Canvas|1|Name|string|image_1|Class Name|string|Image|Import N
+#ame|string|gui|X Fix|integer|1|Y Fix|integer|1|W Fix|integer|1|H Fix|i
+#nteger|1|W Default|null|H Default|null|X Spec|string|10|Y Spec|string|
+#10|W Spec|string|100|H Spec|string|50|X Align|string|l|Y Align|string|
+#t|Is shaded|null|Is Button Subclass|null|Draw Border|null|Attribs|list
+#|0|Tooltip|null|Accel|null|Event Handlers|list|0|Class Variable|intege
+#r|1|Parent Component|1|File name|string|unilogo.jpg|X Internal Alignme
+#nt|string|c|Y Internal Alignment|string|c|Scale Up Flag|null|Initial F
+#ocus|null|Event Handlers|null|

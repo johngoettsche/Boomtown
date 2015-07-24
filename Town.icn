@@ -1,0 +1,9 @@
+class Town(name, npcs)
+	method population()
+		return *npcs + *players
+	end
+	
+initially
+	name := "Boomtown"
+	npcs := []
+end

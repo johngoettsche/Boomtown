@@ -1,0 +1,14 @@
+package Businesses
+
+import Contracts
+
+class Business(name, type, ownership, stock)
+	method production()
+		
+	end
+
+initially(playerName, businessName, t)
+	name := mineName
+	type := t
+	ownership := Ownership(playerName, 100)
+end

@@ -1,0 +1,67 @@
+package Tiles
+
+line random
+
+global
+	MAPSIZE
+	map
+
+procedure makeNewMap()
+	local
+		r,
+		c
+	
+	r := 1
+	while r <= MAPSIZE do {
+		c := 1
+		newRow := []
+		while c <= MAPSIZE do {
+			newTile := Tile(r, c)
+			put(newRow, newTile)
+			c +:= 1
+		}
+		put(map, newRow)
+		r +:= 1
+	}
+	makeStreams()
+end
+
+procedure makeStreams()
+	local 
+		start,
+		x,
+		y,
+		waterCount
+		
+	waterCount := 0
+	start := ?(2 * (MAPSIZE - 2))
+	if start > (MAPSIZE - 2) then {
+		x := 1
+		y := start % (MAPSIZE - 2) + 1
+	}
+	else {
+		x := start + 1
+		y := 1
+	}
+	
+end
+
+procedure changeToWater(x, y)
+	
+end
+
+procedure initMap()
+	MAPSIZE := 20
+	map := []
+end
+
+class Tile(x, y, type, gold, trees, owner)
+
+initially(newY, newX)
+	x := newX
+	y := newY
+	type := "forest"
+	gold := ?100
+	trees := 50 + ?50
+	owner := "GLO"
+end

@@ -1,0 +1,69 @@
+import gui
+$include "guih.icn"
+
+class Untitled : Dialog(text_list_1, panel_1, panel_2)
+   method component_setup()
+      self.setup()
+   end
+
+   method end_dialog()
+   end
+
+   method init_dialog()
+   end
+
+   method setup()
+	txt := []
+	put(txt, "testing...")
+      self.set_attribs("size=644,399")
+      text_list_1 := TextList()
+      text_list_1.set_pos("10", "10")
+      text_list_1.set_size("200", "150")
+ #     text_list_1.set_draw_border()
+ #     text_list_1.set_is_shaded()
+
+      text_list_1.set_contents(txt)
+
+      panel_2 := Panel()
+      panel_2.set_pos(10, 10)
+      panel_2.set_size(200, 150)
+      self.add(panel_2)
+		      self.set_focus(panel_2)
+				      self.add(text_list_1)
+   end
+
+   initially
+      self.Dialog.initially()
+end
+
+procedure main()
+   local d
+   d := Untitled()
+   d.show_modal()
+end
+
+### Ivib-v2 layout ##
+#class|Canvas|17|Name Table|table|integer|0|2|string|panel|integer|2|st
+#ring|text_list|integer|1|SuperClass Name|string|Dialog|Import Name|str
+#ing|gui|Button Groups|class|ButtonGroupSet|2|Parent Canvas|1|Boxes|lis
+#t|0|Checkbox Groups|class|CheckBoxGroupSet|2|Parent Canvas|1|Boxes|lis
+#t|0|Gen Indent|integer|3|Gen Main|integer|1|Gen Component Setup|intege
+#r|1|Gen Init Dialog|integer|1|Gen Initially|integer|1|Dialog Struct|cl
+#ass|CDialog|4|Min Width|null|Min Height|null|Ticker Rate|null|Attribs|
+#list|0|Name|string|Untitled|Width|integer|644|Height|integer|399|Items
+#|list|2|class|CanvasTextList|29|Parent Canvas|1|Name|string|text_list_
+#1|Class Name|string|TextList|Import Name|string|gui|X Fix|integer|1|Y 
+#Fix|integer|1|W Fix|integer|1|H Fix|integer|1|W Default|null|H Default
+#|null|X Spec|string|10|Y Spec|string|10|W Spec|string|200|H Spec|strin
+#g|150|X Align|string|l|Y Align|string|t|Is shaded|integer|1|Is Button 
+#Subclass|null|Draw Border|integer|1|Attribs|list|0|Tooltip|null|Accel|
+#null|Event Handlers|list|0|Class Variable|integer|1|Parent Component|1
+#|Select One|null|Select Many|null|Checked|list|1|null|Contents|list|1|
+#string||class|CanvasPanel|26|Parent Canvas|1|Name|string|panel_2|Class
+# Name|string|Panel|Import Name|string|gui|X Fix|null|Y Fix|null|W Fix|
+#null|H Fix|null|W Default|null|H Default|null|X Spec|integer|307|Y Spe
+#c|integer|15|W Spec|integer|200|H Spec|integer|150|X Align|string|l|Y 
+#Align|string|t|Is shaded|null|Is Button Subclass|null|Draw Border|null
+#|Attribs|list|0|Tooltip|null|Accel|null|Event Handlers|null|Class Vari
+#able|integer|1|Parent Component|1|Children|list|0|Initial Focus|10|Eve
+#nt Handlers|null|

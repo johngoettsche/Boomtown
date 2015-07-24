@@ -1,15 +1,2 @@
-Boomtown.exe : UserInterface.u game.u
-	unicon -o Boomtown.exe UserInterface.u game.u
-	make clean
-	
-game.u : game.icn UserInterface.u
-	unicon -c game.icn
-	
-UserInterface.u : UserInterface.icn Players.u
-	unicon -c UserInterface.icn Players.u
-	
-Players.u : Players.icn
-	unicon -c Players.icn
-	
-clean :
-	rm *.u
+Boomtown : Boomtown.icn dialogs.icn AreaMap.icn Town.icn Players.icn Contracts.icn Mines.icn
+	unicon Boomtown dialogs AreaMap Town Players Contracts Mines

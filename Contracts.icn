@@ -1,0 +1,60 @@
+class Ownership(owners, totalShares)
+	method getOwner(player)
+		every o := !owners do {
+			if o.owner.name == player then 
+				return o
+		}
+		return &null
+	end
+
+	method sharesOwned(player)
+		local owner
+		
+		owner := &null
+		owner := getOwner(player)
+		if \owner then return owner.shares
+		else return 0
+	end
+	
+	method giveShares(seller, buyer, shares)
+		local owner
+		
+		owner := &null
+		owner := 	getOwner(seller)
+		if \owner then {
+			seller := owner
+			if seller.shares >= shares then {
+				owner := &null
+				owner := 	getOwner(buyer)
+				if \owner then {
+					buyer := owner
+					buyer.shares +:= shares
+				}
+				else {
+					buyer := Owner(buyer, shares)
+					put(owners, buyer)
+				}
+			}
+			else return -2
+		}
+		else return -1
+		seller.shares -:= shares
+		if seller.shares == 0 then delete(owners, seller)
+	end
+	
+initially(creator, tShares)
+	local
+		newOwner
+		
+	totalShares := tShares
+	owners := []
+	newOwner := Owner(creator, tShares)
+	put(owners, newOwner)
+end
+
+class Owner(owner, shares)
+
+initially(o, s)
+	owner := o
+	shares := s
+end
