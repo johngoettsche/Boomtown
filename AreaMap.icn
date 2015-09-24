@@ -1,3 +1,28 @@
+import gui
+$include "guih.icn"
+
+procedure displayMap(mapDisplay, scale, canvas)
+	local
+		tile,
+		tileImageData
+		
+	row := 1
+	while row <= MAPSIZE do {
+		column := 1
+		while column <= MAPSIZE do {
+			tile := getTile(row, column)	
+			tileX := scale * (column / 2.0 + (MAPSIZE - row / 2.0 ) - MAPSIZE / 2.0)
+			tileY := row * scale / 4.0 + column * scale / 4.0
+			write("test", row, ", ", column, ": ", tile.tileType)
+			DrawImage(mapDisplay, tileX, tileY, groundSprite)
+			if /tile.statusImage then tile.statusImage := groundMineSprite
+			DrawImage(mapDisplay, tileX, tileY, tile.statusImage)			
+			column +:= 1
+		}
+		row +:= 1
+	}
+end
+
 procedure getTile(r, c)
 	row := areaMap[r]
 	return row[c]
@@ -8,31 +33,161 @@ procedure makeMap()
 		row,
 		column,
 		newTile,
-		newRow
+		newRow,
+		tileData
 		
-	newRow := []
+	
 	row := 1
 	while row <= MAPSIZE do {
+		newRow := []
 		column := 1
 		while column <= MAPSIZE do {
-			newTile := Tile(row, column)
-			put(newRow, newTile)
+			tileData := Tile(row, column)
+			put(newRow, tileData)
 			column +:= 1
 		}
 		put(areaMap, newRow)
 		row +:= 1
 	}
+	
+	#make rivers
+	di := MAPSIZE / 3
+	startPointRow := ?di + ?di + ?di
+	startPointColumn := ?di + ?di + ?di
+	tile := getTile(startPointRow, startPointColumn)
+	biases := ["N", "E", "S", "W"]
+	fork := 0
+	until fork > 2 do {
+		row := startPointRow
+		column := startPointColumn
+		bias := ?*biases
+		walkChoices := ["N", "E", "S", "W"]
+		put(walkChoices, biases[bias])
+		put(walkChoices, biases[bias])
+		put(walkChoices, biases[bias])
+		put(walkChoices, biases[bias])
+		put(walkChoices, biases[bias])
+		delete(biases, bias)
+		until row == 1 | row == MAPSIZE | column == 1 | column == MAPSIZE do {
+			case ?walkChoices of {
+				"N" : {
+					nextTile := getTile(row - 1, column)
+					row -:= 1
+				}
+				"E" : {
+					nextTile := getTile(row, column + 1)
+					column +:= 1
+				}
+				"S" : {
+					nextTile := getTile(row + 1, column)
+					row +:= 1
+				}
+				"W" : {
+					nextTile := getTile(row, column - 1)
+					column -:= 1
+				}
+			}
+			nextTile.tileType := "river"
+			tile := nextTile
+		}		
+		fork +:= 1
+	}
+	
+	#set TileImage
+	row := 1
+	while row <= MAPSIZE do {
+		column := 1
+		while column <= MAPSIZE do {
+			tile := getTile(row, column)
+			tile.setTileImage()
+			column +:= 1
+		}
+		row +:= 1
+	}
 end
 
 class Tile(row, column, tileType, trees, pGold, uGold, owner, structure, statusImage)
+	method setTileImage()
+		case tileType of {
+			"forest" : {
+				if trees < (5 * TREEMAX / 8) then statusImage := treesSprite1
+				else statusImage := treesSprite2
+				#statusImage := treesSprite3
+			} #end forest
+			"river" : {
+				if row == 1 | getTile(row - 1, column).tileType == "river" then { #N-E|S|W|*
+					if column == MAPSIZE | getTile(row, column + 1).tileType == "river" then { #NE-S|W|*
+						if row == MAPSIZE | getTile(row + 1, column).tileType == "river" then { #NES-W|*
+							if column == 1 | getTile(row, column - 1).tileType == "river" then { #NESW-*
+								statusImage := riverSpriteNESW
+							} else { #NES-*
+								statusImage := riverSpriteNES
+							}
+						} else { #NE-W|*
+							if column == 1 | getTile(row, column - 1).tileType == "river" then { #NEW-*
+								statusImage := riverSpriteNEW
+							} else { #NE-*
+								statusImage := riverSpriteNE
+							}
+						}
+					} else { #N-S|W|*
+						if row == MAPSIZE | getTile(row + 1, column).tileType == "river" then { #NS-W|*
+							if column == 1 | getTile(row, column - 1).tileType == "river" then { #NSW-*
+								statusImage := riverSpriteNSW
+							} else { #NS-*
+								statusImage := riverSpriteNS
+							}
+						} else { #N-W|*
+							if column == 1 | getTile(row, column - 1).tileType == "river" then { #NW-*
+								statusImage := riverSpriteNW
+							} else {#N-*
+								statusImage := riverSpriteN
+							}
+						}
+					}
+				} else { #E|S|W|*
+					if column == MAPSIZE | getTile(row, column + 1).tileType == "river" then { #E-S|W|*
+						if row == MAPSIZE | getTile(row + 1, column).tileType == "river" then { #ES-W|*
+							if column == 1 | getTile(row, column - 1).tileType == "river" then { #ESW-*
+								statusImage := riverSpriteESW
+							} else { #NW-*
+								statusImage := riverSpriteES
+							}
+						} else { #E-W|*
+							if column == 1 | getTile(row, column - 1).tileType == "river" then { #EW-*
+								statusImage := riverSpriteEW
+							} else { #E-*
+								statusImage := riverSpriteE
+							}
+						}
+					} else { #S|W|*
+						if row == MAPSIZE | getTile(row + 1, column).tileType == "river" then { #S-W|*
+							if column == 1 | getTile(row, column - 1).tileType == "river" then { #SW-*
+								statusImage := riverSpriteSW
+							} else { #S-*
+								statusImage := riverSpriteS
+							}
+						} else { #W-*
+							statusImage := riverSpriteW
+						}
+					}
+				}
+			} #end river
+		}
+	end
+	
+	method tileClick(e)
+	
+	end
 
 initially(r, c)
 	row := r
 	column := c
 	tileType := "forest"
-	trees := 20 + ?20
+	trees := (TREEMAX / 2) + ?(TREEMAX / 2)
 	pGold := ?20
 	uGold := ?50
 	owner := "GLO"
 	structure := "none"
+	setTileImage()
 end

@@ -1,0 +1,8 @@
+./tiles/pine-none01.gif
+./tiles/pine-none02.gif
+./tiles/pine-none03.gif
+./tiles/pine-none04.gif
+./tiles/pine-none05.gif
+./tiles/pine-none06.gif
+./tiles/pine-none07.gif
+./tiles/pine-none08.gif

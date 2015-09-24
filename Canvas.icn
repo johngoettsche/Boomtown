@@ -1,0 +1,53 @@
+import gui
+$include "guih.icn"
+
+class Canvas : Component(
+		w, h, 
+		tempWin
+	)
+	
+	method display()
+		if /tempWin then {
+			tempWin := WOpen("canvas=hidden", "size=" || scale * MAPSIZE + scale|| "," || scale * MAPSIZE / 2 + scale)
+			CopyArea(self.get_parent_win(), tempWin, x, y, w, h, 0, 0)
+		}
+		canvasWindow := Clone(self.cwin, "size=" || w || "," || h, "pos=0,30")
+		#draw stuff
+		displayMap(tempWin, scale, canvasWindow)
+		CopyArea(tempWin, canvasWindow, 0, 0, w - 10, h - 40, 0, 30)
+		
+		repeat if Event(canvasWindow) === &lpress then {
+			write("searching...")
+			row := 1
+			while row <= MAPSIZE do {
+				column := 1
+				while column <= MAPSIZE do {
+					tileX := scale * (column / 2.0 + (MAPSIZE - row / 2.0 ) - MAPSIZE / 2.0)
+					tileY := row * scale / 4.0 + column * scale / 4.0
+					
+					if (tileX <= &x <= tileX + scale / 2) & (tileY <= &y <= tileY + scale / 2) then {
+						write(row, ":", column)
+						DrawImage(mapDisplay, tileX, tileY, selectedSprite)
+					}			
+					column +:= 1
+				}
+				row +:= 1
+			} 
+		}
+	end
+	
+	method canvasPos(cx, cy)
+		CopyArea(tempWin, canvasWindow, cx, cy, w - 10, h - 40, 0, 30)
+	end
+	
+	method set_one(attr, val)
+		case attr of {
+			default : self.Component.set_one(attr, val)
+		}
+	end
+	
+initially(a[])
+	self.Component.initially()
+	set_fields(a)
+	
+end

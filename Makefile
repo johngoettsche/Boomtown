@@ -1,2 +1,2 @@
-Boomtown : Boomtown.icn dialogs.icn AreaMap.icn Town.icn Players.icn Contracts.icn Mines.icn
-	unicon Boomtown dialogs AreaMap Town Players Contracts Mines
+Boomtown : Boomtown.icn dialogs.icn Sprites.icn Canvas.icn AreaMap.icn Town.icn Players.icn Contracts.icn Mines.icn
+	unicon Boomtown dialogs Sprites Canvas AreaMap Town Players Contracts Mines
